@@ -510,7 +510,141 @@
                 display: none;
             }
         }
+
+        /* Game button */
+        .game-btn {
+            position: fixed;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 1.2rem 3rem;
+            font-family: 'Press Start 2P', 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fff;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.4) 0%, rgba(139, 92, 246, 0.3) 100%);
+            border: 2px solid rgba(99, 102, 241, 0.6);
+            border-radius: 12px;
+            cursor: pointer;
+            z-index: 100;
+            animation: gameButtonPulse 2s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
+        }
+
+        @keyframes gameButtonPulse {
+            0%, 100% { 
+                transform: translateX(-50%) scale(1); 
+                box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
+            }
+            50% { 
+                transform: translateX(-50%) scale(1.08); 
+                box-shadow: 0 0 50px rgba(99, 102, 241, 0.5);
+            }
+        }
+
+        .game-btn:hover {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.6) 0%, rgba(139, 92, 246, 0.5) 100%);
+            border-color: rgba(99, 102, 241, 1);
+            animation: gameButtonPulse 0.5s ease-in-out infinite;
+        }
+
+        /* Game container */
+        .game-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 10000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-container.active {
+            display: flex;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            width: 600px;
+            padding: 1rem;
+            font-family: 'Press Start 2P', 'Courier New', monospace;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .game-canvas {
+            border: 2px solid #69D3A7;
+            box-shadow: 0 0 30px rgba(105, 211, 167, 0.3);
+        }
+
+        .game-over-screen, .game-win-screen {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #fff;
+            font-family: 'Press Start 2P', 'Courier New', monospace;
+        }
+
+        .game-over-screen h2, .game-win-screen h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .game-win-screen h2 {
+            color: #69D3A7;
+            text-shadow: 0 0 20px rgba(105, 211, 167, 0.8);
+        }
+
+        .game-over-screen h2 {
+            color: #ef4444;
+            text-shadow: 0 0 20px rgba(239, 68, 68, 0.8);
+        }
+
+        .game-over-screen p, .game-win-screen p {
+            font-size: 0.8rem;
+            margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .game-btn-restart {
+            padding: 1rem 2rem;
+            font-family: 'Press Start 2P', 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #000;
+            background: #69D3A7;
+            border: none;
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+
+        .game-btn-restart:hover {
+            background: #45ba4b;
+        }
+
+        .game-btn-exit {
+            padding: 1rem 2rem;
+            font-family: 'Press Start 2P', 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #fff;
+            background: transparent;
+            border: 2px solid #fff;
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+
+        .game-btn-exit:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="bg-gradient"></div>
@@ -580,6 +714,9 @@
             <span>Built with pride by QE team</span>
             <span class="emoji">🚀</span>
         </div>
+
+        <!-- Game button -->
+        <button class="game-btn" onclick="startGame()">Start Game</button>
     </div>
 
     <!-- Apollo section -->
@@ -587,6 +724,30 @@
         <img src="https://cdn.brandfetch.io/idY56OZ9sE/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1766615615875" alt="Apollo" class="apollo-logo">
         <span class="apollo-text"><strong>The future is now!</strong></span>
     </a>
+
+    <!-- Game container -->
+    <div class="game-container" id="gameContainer">
+        <div class="game-header">
+            <span>SCORE: <span id="gameScore">0</span>/50</span>
+            <span>CYPRESS DESTROYER</span>
+            <button class="game-btn-exit" onclick="exitGame()">EXIT</button>
+        </div>
+        <canvas id="gameCanvas" class="game-canvas" width="600" height="500"></canvas>
+        
+        <div class="game-win-screen" id="gameWinScreen">
+            <h2>YOU FINISHED THEM ALL!</h2>
+            <p>All Cypress tests have been migrated to Playwright!</p>
+            <button class="game-btn-restart" onclick="restartGame()">PLAY AGAIN</button>
+            <button class="game-btn-exit" onclick="exitGame()">EXIT</button>
+        </div>
+
+        <div class="game-over-screen" id="gameOverScreen">
+            <h2>GAME OVER</h2>
+            <p>The Cypress tests have invaded! Migration failed...</p>
+            <button class="game-btn-restart" onclick="restartGame()">TRY AGAIN</button>
+            <button class="game-btn-exit" onclick="exitGame()">EXIT</button>
+        </div>
+    </div>
 
     <script>
         // Configuration - change this number to update the countdown
@@ -656,6 +817,259 @@
 
         // Initial check
         checkComplete();
+
+        // ============================================
+        // CYPRESS DESTROYER - Space Invaders Game
+        // ============================================
+        
+        let gameActive = false;
+        let gameLoop = null;
+        let score = 0;
+        const WINNING_SCORE = 50;
+        
+        // Game objects
+        let player = { x: 270, y: 450, width: 60, height: 40, speed: 8 };
+        let bullets = [];
+        let aliens = [];
+        let alienDirection = 1;
+        let alienSpeed = 0.4;
+        let keys = {};
+        
+        // Cypress test file names for aliens
+        const cypressFiles = [
+            'login.cy.js', 'auth.cy.js', 'cart.cy.js', 'api.cy.js', 'user.cy.js',
+            'home.cy.js', 'nav.cy.js', 'form.cy.js', 'test.cy.js', 'spec.cy.js'
+        ];
+        
+        function startGame() {
+            document.getElementById('gameContainer').classList.add('active');
+            document.getElementById('gameWinScreen').style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            score = 0;
+            document.getElementById('gameScore').textContent = score;
+            
+            // Reset game state
+            player = { x: 270, y: 450, width: 60, height: 40, speed: 8 };
+            bullets = [];
+            aliens = [];
+            alienDirection = 1;
+            alienSpeed = 0.4;
+            
+            // Create aliens (5 rows x 10 columns = 50 aliens)
+            for (let row = 0; row < 5; row++) {
+                for (let col = 0; col < 10; col++) {
+                    aliens.push({
+                        x: 50 + col * 55,
+                        y: 50 + row * 45,
+                        width: 50,
+                        height: 30,
+                        alive: true,
+                        file: cypressFiles[col % cypressFiles.length]
+                    });
+                }
+            }
+            
+            gameActive = true;
+            
+            // Key listeners
+            document.addEventListener('keydown', handleKeyDown);
+            document.addEventListener('keyup', handleKeyUp);
+            
+            // Start game loop
+            gameLoop = requestAnimationFrame(updateGame);
+        }
+        
+        function handleKeyDown(e) {
+            keys[e.key] = true;
+            if (e.key === ' ' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                e.preventDefault();
+            }
+        }
+        
+        function handleKeyUp(e) {
+            keys[e.key] = false;
+        }
+        
+        function shoot() {
+            if (bullets.length < 5) { // Limit bullets on screen
+                bullets.push({
+                    x: player.x + player.width / 2 - 3,
+                    y: player.y,
+                    width: 6,
+                    height: 15,
+                    speed: 10
+                });
+            }
+        }
+        
+        let lastShot = 0;
+        function updateGame(timestamp) {
+            if (!gameActive) return;
+            
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.fillStyle = '#0a0a0f';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw starfield background
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            for (let i = 0; i < 50; i++) {
+                const x = (i * 73 + timestamp * 0.01) % canvas.width;
+                const y = (i * 51) % canvas.height;
+                ctx.fillRect(x, y, 2, 2);
+            }
+            
+            // Player movement
+            if (keys['ArrowLeft'] && player.x > 0) {
+                player.x -= player.speed;
+            }
+            if (keys['ArrowRight'] && player.x < canvas.width - player.width) {
+                player.x += player.speed;
+            }
+            if (keys[' '] && timestamp - lastShot > 200) {
+                shoot();
+                lastShot = timestamp;
+            }
+            
+            // Draw player (Apollo ship)
+            ctx.fillStyle = '#6366f1';
+            ctx.beginPath();
+            ctx.moveTo(player.x + player.width / 2, player.y);
+            ctx.lineTo(player.x, player.y + player.height);
+            ctx.lineTo(player.x + player.width, player.y + player.height);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Apollo logo on ship
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 10px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('APOLLO', player.x + player.width / 2, player.y + player.height - 8);
+            
+            // Update and draw bullets
+            bullets = bullets.filter(bullet => {
+                bullet.y -= bullet.speed;
+                
+                // Draw bullet
+                ctx.fillStyle = '#22c55e';
+                ctx.shadowColor = '#22c55e';
+                ctx.shadowBlur = 10;
+                ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+                ctx.shadowBlur = 0;
+                
+                return bullet.y > -bullet.height;
+            });
+            
+            // Move aliens
+            let hitEdge = false;
+            aliens.forEach(alien => {
+                if (alien.alive) {
+                    if (alien.x <= 0 || alien.x >= canvas.width - alien.width) {
+                        hitEdge = true;
+                    }
+                }
+            });
+            
+            if (hitEdge) {
+                alienDirection *= -1;
+                aliens.forEach(alien => {
+                    alien.y += 20;
+                });
+            }
+            
+            // Update and draw aliens
+            let alienReachedBottom = false;
+            aliens.forEach(alien => {
+                if (alien.alive) {
+                    alien.x += alienSpeed * alienDirection;
+                    
+                    // Check if alien reached bottom
+                    if (alien.y + alien.height >= player.y) {
+                        alienReachedBottom = true;
+                    }
+                    
+                    // Draw alien (Cypress test file)
+                    ctx.fillStyle = '#69D3A7';
+                    ctx.fillRect(alien.x, alien.y, alien.width, alien.height);
+                    
+                    // Cypress "C" logo
+                    ctx.fillStyle = '#0a0a0f';
+                    ctx.font = 'bold 14px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('CY', alien.x + alien.width / 2, alien.y + 20);
+                    
+                    // Check collision with bullets
+                    bullets.forEach((bullet, bulletIndex) => {
+                        if (bullet.x < alien.x + alien.width &&
+                            bullet.x + bullet.width > alien.x &&
+                            bullet.y < alien.y + alien.height &&
+                            bullet.y + bullet.height > alien.y) {
+                            alien.alive = false;
+                            bullets.splice(bulletIndex, 1);
+                            score++;
+                            document.getElementById('gameScore').textContent = score;
+                            
+                            // Check win condition
+                            if (score >= WINNING_SCORE) {
+                                winGame();
+                            }
+                        }
+                    });
+                }
+            });
+            
+            // Check game over condition
+            if (alienReachedBottom) {
+                gameOver();
+                return;
+            }
+            
+            // Draw score
+            ctx.fillStyle = '#fff';
+            ctx.font = '12px "Press Start 2P", monospace';
+            ctx.textAlign = 'left';
+            ctx.fillText('Arrow keys to move, SPACE to shoot', 10, canvas.height - 10);
+            
+            // Continue game loop
+            if (gameActive) {
+                gameLoop = requestAnimationFrame(updateGame);
+            }
+        }
+        
+        function winGame() {
+            gameActive = false;
+            cancelAnimationFrame(gameLoop);
+            document.getElementById('gameWinScreen').style.display = 'block';
+            
+            // Victory confetti
+            confetti({
+                particleCount: 200,
+                spread: 100,
+                origin: { y: 0.6 },
+                colors: ['#69D3A7', '#45ba4b', '#6366f1', '#fbbf24']
+            });
+        }
+        
+        function gameOver() {
+            gameActive = false;
+            cancelAnimationFrame(gameLoop);
+            document.getElementById('gameOverScreen').style.display = 'block';
+        }
+        
+        function restartGame() {
+            startGame();
+        }
+        
+        function exitGame() {
+            gameActive = false;
+            cancelAnimationFrame(gameLoop);
+            document.removeEventListener('keydown', handleKeyDown);
+            document.removeEventListener('keyup', handleKeyUp);
+            document.getElementById('gameContainer').classList.remove('active');
+            keys = {};
+        }
     </script>
 </body>
 </html>
